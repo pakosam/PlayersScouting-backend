@@ -105,6 +105,33 @@ namespace PlayersScouting_backend.Controllers
                 return NotFound();
             }
 
+            var updatedScout = await _context.Scouts
+                .Where(sc => sc.PlayerId == id)
+                .ToListAsync();
+
+            foreach (var scout in updatedScout)
+            {
+                scout.PlayerId = 0;
+            }
+
+            var deletedStat = await _context.Stats
+                .Where(st => st.PlayerId == id)
+                .ToListAsync();
+
+            foreach (var stat in deletedStat)
+            {
+                _context.Stats.Remove(stat);
+            }
+
+            var deletedRating = await _context.Ratings
+                .Where(r => r.PlayerId == id)
+                .ToListAsync();
+
+            foreach (var rating in deletedRating)
+            {
+                _context.Ratings.Remove(rating);
+            }
+
             _context.Players.Remove(player);
             await _context.SaveChangesAsync();
 
