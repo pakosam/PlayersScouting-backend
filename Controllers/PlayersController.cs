@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
 
@@ -42,9 +43,9 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Player>> AddPlayer(Player player)
+        public async Task<ActionResult<Player>> AddPlayer(CreatePlayerDto player)
         {
-            var createPlayer = new Player
+            var createdPlayer = new Player
             {
                 Name = player.Name,
                 Surname = player.Surname,
@@ -58,14 +59,14 @@ namespace PlayersScouting_backend.Controllers
                 Club = player.Club
             };
 
-            _context.Players.Add(createPlayer);
+            _context.Players.Add(createdPlayer);
             await _context.SaveChangesAsync();
 
-            return createPlayer;
+            return createdPlayer;
         }
 
         [HttpPut]
-        public async Task<ActionResult<Player>> UpdatePlayer(Player player)
+        public async Task<ActionResult<Player>> UpdatePlayer(UpdatePlayerDto player)
         {
             if (player.Id == null)
             {

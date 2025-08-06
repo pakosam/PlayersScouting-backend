@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
 
@@ -42,9 +43,9 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Stats>> AddStat(Stats stat)
+        public async Task<ActionResult<Stats>> AddStat(CreateStatDto stat)
         {
-            var player = await _context.Players.FindAsync(stat.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == stat.FullName);
 
             if (player == null)
             {
@@ -53,13 +54,12 @@ namespace PlayersScouting_backend.Controllers
 
             var createStat = new Stats
             {
-                Id = stat.Id,
                 Season = stat.Season,
                 Club = stat.Club,
                 MatchesPlayed = stat.MatchesPlayed,
                 Goals = stat.Goals,
                 Assists = stat.Assists,
-                PlayerId = stat.PlayerId,
+                PlayerId = player.Id
             };
 
             _context.Stats.Add(createStat);
@@ -69,28 +69,28 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Stats>> UpdateStat(Stats stat)
+        public async Task<ActionResult<Stats>> UpdateStat(UpdateStatDto updatedStat)
         {
-            var player = await _context.Players.FindAsync(stat.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedStat.FullName);
 
             if (player == null)
             {
                 return NotFound();
             }
 
-            var dbStat = await _context.Stats.FindAsync(stat.Id);
+            var dbStat = await _context.Stats.FindAsync(updatedStat.Id);
 
             if (dbStat == null)
             {
                 return NotFound();
             }
 
-            dbStat.Season = stat.Season;
-            dbStat.Club = stat.Club;
-            dbStat.MatchesPlayed = stat.MatchesPlayed;
-            dbStat.Goals = stat.Goals;
-            dbStat.Assists = stat.Assists;
-            dbStat.PlayerId = stat.PlayerId;
+            dbStat.Season = updatedStat.Season;
+            dbStat.Club = updatedStat.Club;
+            dbStat.MatchesPlayed = updatedStat.MatchesPlayed;
+            dbStat.Goals = updatedStat.Goals;
+            dbStat.Assists = updatedStat.Assists;
+            dbStat.PlayerId = player.Id;
 
             await _context.SaveChangesAsync();
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mono.TextTemplating;
+using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
 
@@ -43,25 +44,31 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Ratings>> AddRating(Ratings rating)
+        public async Task<ActionResult<Ratings>> AddRating(CreateRatingDto rating)
         {
-            var player = await _context.Players.FindAsync(rating.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == rating.FullName);
 
             if (player == null)
             {
                 return NotFound();
             }
 
+            var existingRating = _context.Ratings.FirstOrDefault(r => r.PlayerId == player.Id);
+
+            if (existingRating != null)
+            {
+                return Conflict("This player already has a rating.");
+            }
+
             var createRating = new Ratings
             {
-                Id = rating.Id,
                 Attack = rating.Attack,
                 Defense = rating.Defense,
                 Tactics = rating.Tactics,
                 Technique = rating.Technique,
                 PhysicalStrength = rating.PhysicalStrength,
                 MentalStrength = rating.MentalStrength,
-                PlayerId = rating.PlayerId
+                PlayerId = player.Id
             };
 
             _context.Ratings.Add(createRating);
@@ -71,29 +78,29 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Ratings>> UpdateRating(Ratings rating)
+        public async Task<ActionResult<Ratings>> UpdateRating(UpdateRatingDto updatedRating)
         {
-            var player = await _context.Players.FindAsync(rating.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedRating.FullName);
 
             if (player == null)
             {
                 return NotFound();
             }
 
-            var dbRating = await _context.Ratings.FindAsync(rating.Id);
+            var dbRating = await _context.Ratings.FindAsync(updatedRating.Id);
 
             if (dbRating == null)
             {
                 return NotFound();
             }
 
-            dbRating.Attack = rating.Attack;
-            dbRating.Defense = rating.Defense;
-            dbRating.Tactics = rating.Tactics;
-            dbRating.Technique = rating.Technique;
-            dbRating.PhysicalStrength = rating.PhysicalStrength;
-            dbRating.MentalStrength = rating.MentalStrength;
-            dbRating.PlayerId = rating.PlayerId;
+            dbRating.Attack = updatedRating.Attack;
+            dbRating.Defense = updatedRating.Defense;
+            dbRating.Tactics = updatedRating.Tactics;
+            dbRating.Technique = updatedRating.Technique;
+            dbRating.PhysicalStrength = updatedRating.PhysicalStrength;
+            dbRating.MentalStrength = updatedRating.MentalStrength;
+            dbRating.PlayerId = player.Id;
 
             await _context.SaveChangesAsync();
 

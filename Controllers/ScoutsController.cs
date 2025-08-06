@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
 
@@ -42,9 +43,9 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Scout>> AddScout(Scout scout)
+        public async Task<ActionResult<Scout>> AddScout(CreateScoutDto scout)
         {
-            var player = await _context.Players.FindAsync(scout.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == scout.PlayerFullName);
 
             if (player == null)
             {
@@ -53,7 +54,6 @@ namespace PlayersScouting_backend.Controllers
 
             var createScout = new Scout
             {
-                Id = scout.Id,
                 Name = scout.Name,
                 Surname = scout.Surname,
                 Birthdate = scout.Birthdate,
@@ -61,7 +61,7 @@ namespace PlayersScouting_backend.Controllers
                 Age = scout.Age,
                 Email = scout.Email,
                 Password = scout.Password,
-                PlayerId = scout.PlayerId
+                PlayerId = player.Id
             };
 
             _context.Scouts.Add(createScout);
@@ -71,30 +71,30 @@ namespace PlayersScouting_backend.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Scout>> UpdateScout(Scout scout)
+        public async Task<ActionResult<Scout>> UpdateScout(UpdateScoutDto updatedScout)
         {
-            var player = await _context.Players.FindAsync(scout.PlayerId);
+            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedScout.PlayerFullName);
 
             if (player == null)
             {
                 return NotFound();
             }
 
-            var dbScout = await _context.Scouts.FindAsync(scout.Id);
+            var dbScout = await _context.Scouts.FindAsync(updatedScout.Id);
 
             if (dbScout == null)
             {
                 return NotFound();
             }
 
-            dbScout.Name = scout.Name;
-            dbScout.Surname = scout.Surname;
-            dbScout.Birthdate = scout.Birthdate;
-            dbScout.Birthplace = scout.Birthplace;
-            dbScout.Age = scout.Age;
-            dbScout.Email = scout.Email;
-            dbScout.Password = scout.Password;
-            dbScout.PlayerId = scout.PlayerId;
+            dbScout.Name = updatedScout.Name;
+            dbScout.Surname = updatedScout.Surname;
+            dbScout.Birthdate = updatedScout.Birthdate;
+            dbScout.Birthplace = updatedScout.Birthplace;
+            dbScout.Age = updatedScout.Age;
+            dbScout.Email = updatedScout.Email;
+            dbScout.Password = updatedScout.Password;
+            dbScout.PlayerId = player.Id;
 
             await _context.SaveChangesAsync();
 
