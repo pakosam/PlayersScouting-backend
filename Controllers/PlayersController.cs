@@ -45,13 +45,20 @@ namespace PlayersScouting_backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Player>> AddPlayer(CreatePlayerDto player)
         {
+            var calculatedAge = DateOnly.FromDateTime(DateTime.Today).Year - player.Birthdate.Year;
+
+            if (player.Birthdate > DateOnly.FromDateTime(DateTime.Today).AddYears(-calculatedAge))
+            {
+                calculatedAge--;
+            }
+
             var createdPlayer = new Player
             {
                 Name = player.Name,
                 Surname = player.Surname,
                 Birthdate = player.Birthdate,
                 Birthplace = player.Birthplace,
-                Age = player.Age,
+                Age = calculatedAge,
                 Height = player.Height,
                 Foot = player.Foot,
                 ShirtNumber = player.ShirtNumber,
@@ -84,7 +91,6 @@ namespace PlayersScouting_backend.Controllers
             dbPlayer.Surname = player.Surname;
             dbPlayer.Birthdate = player.Birthdate;
             dbPlayer.Birthplace = player.Birthplace;
-            dbPlayer.Age = player.Age;
             dbPlayer.Height = player.Height;
             dbPlayer.Foot = player.Foot;
             dbPlayer.ShirtNumber = player.ShirtNumber;

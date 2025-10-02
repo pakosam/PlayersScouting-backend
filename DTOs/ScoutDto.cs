@@ -1,11 +1,5 @@
 ﻿namespace PlayersScouting_backend.DTOs
 {
-    public class ScoutDto
-    {
-        public int Id { get; set; }
-        public string FullName { get; set; }
-    }
-
     public class CreateScoutDto
     {
         public string Name { get; set; }

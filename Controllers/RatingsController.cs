@@ -60,6 +60,16 @@ namespace PlayersScouting_backend.Controllers
                 return Conflict("This player already has a rating.");
             }
 
+            if (rating.Attack < 1 || rating.Attack > 10 ||
+                rating.Defense < 1 || rating.Defense > 10 ||
+                rating.Tactics < 1 || rating.Tactics > 10 ||
+                rating.Technique < 1 || rating.Technique > 10 ||
+                rating.PhysicalStrength < 1 || rating.PhysicalStrength > 10 ||
+                rating.MentalStrength < 1 || rating.MentalStrength > 10)
+            {
+                return BadRequest("All ratings must be between 1 and 10.");
+            }
+
             var createRating = new Ratings
             {
                 Attack = rating.Attack,
@@ -92,6 +102,16 @@ namespace PlayersScouting_backend.Controllers
             if (dbRating == null)
             {
                 return NotFound();
+            }
+
+            if (updatedRating.Attack < 1 || updatedRating.Attack > 10 ||
+                updatedRating.Defense < 1 || updatedRating.Defense > 10 ||
+                updatedRating.Tactics < 1 || updatedRating.Tactics > 10 ||
+                updatedRating.Technique < 1 || updatedRating.Technique > 10 ||
+                updatedRating.PhysicalStrength < 1 || updatedRating.PhysicalStrength > 10 ||
+                updatedRating.MentalStrength < 1 || updatedRating.MentalStrength > 10)
+            {
+                return BadRequest("All ratings must be between 1 and 10.");
             }
 
             dbRating.Attack = updatedRating.Attack;
