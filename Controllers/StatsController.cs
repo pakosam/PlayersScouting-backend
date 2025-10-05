@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Mono.TextTemplating;
 using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
@@ -41,6 +42,22 @@ namespace PlayersScouting_backend.Controllers
 
             return stat;
         }
+
+        [HttpGet("player/{playerId:int}")]
+        public async Task<ActionResult<List<Stats>>> GetStatsByPlayerId(int playerId)
+        {
+            var stats = await _context.Stats
+                .Where(s => s.PlayerId == playerId)
+                .ToListAsync();
+
+            if (!stats.Any())
+            {
+                return NotFound();
+            }
+
+            return stats;
+        }
+
 
         [HttpPost]
         public async Task<ActionResult<Stats>> AddStat(CreateStatDto stat)
