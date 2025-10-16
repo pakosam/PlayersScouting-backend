@@ -130,7 +130,15 @@ namespace PlayersScouting_backend.Controllers
         [HttpDelete]
         public async Task<ActionResult<Ratings>> DeleteRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
+
+            var player = await _context.Players.FindAsync(id);
+
+            if (player == null)
+            {
+                return NotFound();
+            }
+
+            var rating = _context.Ratings.FirstOrDefault(r => r.PlayerId == player.Id);
 
             if (rating == null)
             {
