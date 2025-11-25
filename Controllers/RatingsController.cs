@@ -43,6 +43,21 @@ namespace PlayersScouting_backend.Controllers
             return rating;
         }
 
+        [HttpGet("player/{playerId:int}")]
+        public async Task<ActionResult<List<Ratings>>> GetRatingsByPlayerId(int playerId)
+        {
+            var ratings = await _context.Ratings
+                .Where(s => s.PlayerId == playerId)
+                .ToListAsync();
+
+            /*if (!ratings.Any())
+            {
+                return NotFound();
+            }*/
+
+            return ratings;
+        }
+
         [HttpPost]
         public async Task<ActionResult<Ratings>> AddRating(CreateRatingDto rating)
         {

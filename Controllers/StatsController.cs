@@ -50,11 +50,6 @@ namespace PlayersScouting_backend.Controllers
                 .Where(s => s.PlayerId == playerId)
                 .ToListAsync();
 
-            if (!stats.Any())
-            {
-                return NotFound();
-            }
-
             return stats;
         }
 
@@ -114,15 +109,13 @@ namespace PlayersScouting_backend.Controllers
             return dbStat;
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<Stats>> DeleteStat(int id)
+        [HttpDelete("{statId}")]
+        public async Task<ActionResult<Stats>> DeleteStat(int statId)
         {
-            var stat = await _context.Stats.FindAsync(id);
+            var stat = await _context.Stats.FindAsync(statId);
 
             if (stat == null)
-            {
                 return NotFound();
-            }
 
             _context.Stats.Remove(stat);
             await _context.SaveChangesAsync();
