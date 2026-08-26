@@ -13,5 +13,6 @@
         public int ShirtNumber { get; set; }
         public string Positions { get; set; }
         public string Club { get; set; }
+        public ICollection<Scout> Scouts { get; set; } = new List<Scout>();
     }
 }

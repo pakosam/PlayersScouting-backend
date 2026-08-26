@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlayersScouting_backend.Persistence;
 
@@ -11,9 +12,11 @@ using PlayersScouting_backend.Persistence;
 namespace PlayersScouting_backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251215204532_ScoutPlayersRelationship")]
+    partial class ScoutPlayersRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace PlayersScouting_backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("PlayerScout", b =>
-                {
-                    b.Property<int>("PlayersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ScoutsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PlayersId", "ScoutsId");
-
-                    b.HasIndex("ScoutsId");
-
-                    b.ToTable("PlayerScout");
-                });
 
             modelBuilder.Entity("PlayersScouting_backend.Entities.Player", b =>
                 {
@@ -74,6 +62,9 @@ namespace PlayersScouting_backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ScoutId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ShirtNumber")
                         .HasColumnType("int");
 
@@ -82,6 +73,8 @@ namespace PlayersScouting_backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ScoutId");
 
                     b.ToTable("Players");
                 });
@@ -192,19 +185,16 @@ namespace PlayersScouting_backend.Migrations
                     b.ToTable("Stats");
                 });
 
-            modelBuilder.Entity("PlayerScout", b =>
+            modelBuilder.Entity("PlayersScouting_backend.Entities.Player", b =>
                 {
-                    b.HasOne("PlayersScouting_backend.Entities.Player", null)
-                        .WithMany()
-                        .HasForeignKey("PlayersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("PlayersScouting_backend.Entities.Scout", null)
-                        .WithMany()
-                        .HasForeignKey("ScoutsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Players")
+                        .HasForeignKey("ScoutId");
+                });
+
+            modelBuilder.Entity("PlayersScouting_backend.Entities.Scout", b =>
+                {
+                    b.Navigation("Players");
                 });
 #pragma warning restore 612, 618
         }

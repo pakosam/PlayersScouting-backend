@@ -1,6 +1,7 @@
 @PlayersScouting_backend_HostAddress = http://localhost:5295
 
-GET {{PlayersScouting_backend_HostAddress}}/weatherforecast/
+GET {{PlayersScouting_backend_HostAddress}}/api/players
 Accept: application/json
+
 
 ###
