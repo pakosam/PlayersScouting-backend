@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
-using PlayersScouting_backend.Persistence;
+using PlayersScouting_backend.Services;
 
 namespace PlayersScouting_backend.Controllers
 {
@@ -10,111 +9,50 @@ namespace PlayersScouting_backend.Controllers
     [ApiController]
     public class ScoutsController : ControllerBase
     {
-        private readonly DataContext _context;
-        public ScoutsController(DataContext context)
+        private readonly IScoutService _scoutService;
+        public ScoutsController(IScoutService scoutService)
         {
-            _context = context;
+            _scoutService = scoutService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Scout>>> GetAllScouts()
         {
-            var scouts = await _context.Scouts.ToListAsync();
-
-            if (scouts == null)
-            {
-                return NotFound();
-            }
+            var scouts = await _scoutService.GetAllScouts();
 
             return Ok(scouts);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Scout>> GetSingleScout(int id)
+        public async Task<ActionResult<ScoutDto>> GetSingleScout(int id)
         {
-            var scout = await _context.Scouts.FindAsync(id);
-
-            if (scout == null)
-            {
-                return NotFound();
-            }
+            var scout = await _scoutService.GetScout(id);
 
             return scout;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Scout>> AddScout(CreateScoutDto scout)
+        public async Task<ActionResult<ScoutDto>> AddScout(CreateScoutDto createScoutDto)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == scout.PlayerFullName);
+            var scout = await _scoutService.CreateScout(createScoutDto);
 
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            var createScout = new Scout
-            {
-                Name = scout.Name,
-                Surname = scout.Surname,
-                Birthdate = scout.Birthdate,
-                Birthplace = scout.Birthplace,
-                Age = scout.Age,
-                Email = scout.Email,
-                Password = scout.Password,
-                PlayerId = player.Id
-            };
-
-            _context.Scouts.Add(createScout);
-            await _context.SaveChangesAsync();
-
-            return createScout;
+            return Ok(scout);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Scout>> UpdateScout(UpdateScoutDto updatedScout)
+        public async Task<ActionResult<Scout>> UpdateScout(UpdateScoutDto updateScoutDto)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedScout.PlayerFullName);
+            var scout = await _scoutService.UpdateScout(updateScoutDto);
 
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            var dbScout = await _context.Scouts.FindAsync(updatedScout.Id);
-
-            if (dbScout == null)
-            {
-                return NotFound();
-            }
-
-            dbScout.Name = updatedScout.Name;
-            dbScout.Surname = updatedScout.Surname;
-            dbScout.Birthdate = updatedScout.Birthdate;
-            dbScout.Birthplace = updatedScout.Birthplace;
-            dbScout.Age = updatedScout.Age;
-            dbScout.Email = updatedScout.Email;
-            dbScout.Password = updatedScout.Password;
-            dbScout.PlayerId = player.Id;
-
-            await _context.SaveChangesAsync();
-
-            return dbScout;
+            return Ok(scout);
         }
 
         [HttpDelete]
         public async Task<ActionResult<Scout>> DeleteScout(int id)
         {
-            var scout = await _context.Scouts.FindAsync(id);
+            var scout = await _scoutService.DeleteScout(id);
 
-            if (scout == null)
-            {
-                return NotFound();
-            }
-
-            _context.Scouts.Remove(scout);
-            await _context.SaveChangesAsync();
-
-            return scout;
+            return Ok(scout);
         }
     }
 }

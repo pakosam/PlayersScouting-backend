@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
+using PlayersScouting_backend.Services;
 
 namespace PlayersScouting_backend.Controllers
 {
@@ -10,21 +11,16 @@ namespace PlayersScouting_backend.Controllers
     [ApiController]
     public class PlayersController : ControllerBase
     {
-        private readonly DataContext _context;
-        public PlayersController(DataContext context)
+        private readonly IPlayerService _playerService;
+        public PlayersController(IPlayerService playerService)
         {
-            _context = context;
+            _playerService = playerService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Player>>> GetAllPlayers()
         {
-            var players = await _context.Players.ToListAsync();
-
-            if (players == null)
-            {
-                return NotFound();
-            }
+            var players = await _playerService.GetAllPlayers();
 
             return Ok(players);
         }
@@ -32,117 +28,33 @@ namespace PlayersScouting_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Player>> GetSinglePlayer(int id)
         {
-            var player = await _context.Players.FindAsync(id);
+            var player = await _playerService.GetPlayer(id);
 
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            return player;
+            return Ok(player);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Player>> AddPlayer(CreatePlayerDto player)
+        public async Task<ActionResult<Player>> AddPlayer(CreatePlayerDto createPlayerDto)
         {
-            var calculatedAge = DateOnly.FromDateTime(DateTime.Today).Year - player.Birthdate.Year;
+            var player = await _playerService.CreatePlayer(createPlayerDto);
 
-            if (player.Birthdate > DateOnly.FromDateTime(DateTime.Today).AddYears(-calculatedAge))
-            {
-                calculatedAge--;
-            }
-
-            var createdPlayer = new Player
-            {
-                Name = player.Name,
-                Surname = player.Surname,
-                Birthdate = player.Birthdate,
-                Birthplace = player.Birthplace,
-                Age = calculatedAge,
-                Height = player.Height,
-                Foot = player.Foot,
-                ShirtNumber = player.ShirtNumber,
-                Positions = player.Positions,
-                Club = player.Club
-            };
-
-            _context.Players.Add(createdPlayer);
-            await _context.SaveChangesAsync();
-
-            return createdPlayer;
+            return Ok(player);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Player>> UpdatePlayer(UpdatePlayerDto player)
+        public async Task<ActionResult<Player>> UpdatePlayer(UpdatePlayerDto updatedPlayerDto)
         {
-            if (player.Id == null)
-            {
-                return BadRequest();
-            }
+            var player = await _playerService.UpdatePlayer(updatedPlayerDto);
 
-            var dbPlayer = await _context.Players.FindAsync(player.Id);
-
-            if (dbPlayer == null)
-            {
-                return NotFound();
-            }
-
-            dbPlayer.Name = player.Name;
-            dbPlayer.Surname = player.Surname;
-            dbPlayer.Birthdate = player.Birthdate;
-            dbPlayer.Birthplace = player.Birthplace;
-            dbPlayer.Height = player.Height;
-            dbPlayer.Foot = player.Foot;
-            dbPlayer.ShirtNumber = player.ShirtNumber;
-            dbPlayer.Positions = player.Positions;
-            dbPlayer.Club = player.Club;
-
-            await _context.SaveChangesAsync();
-
-            return dbPlayer;
+            return Ok(player);
         }
 
         [HttpDelete]
         public async Task<ActionResult<Player>> DeletePlayer(int id)
         {
-            var player = await _context.Players.FindAsync(id);
+            var player = await _playerService.DeletePlayer(id);
 
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            var updatedScout = await _context.Scouts
-                .Where(sc => sc.PlayerId == id)
-                .ToListAsync();
-
-            foreach (var scout in updatedScout)
-            {
-                scout.PlayerId = 0;
-            }
-
-            var deletedStat = await _context.Stats
-                .Where(st => st.PlayerId == id)
-                .ToListAsync();
-
-            foreach (var stat in deletedStat)
-            {
-                _context.Stats.Remove(stat);
-            }
-
-            var deletedRating = await _context.Ratings
-                .Where(r => r.PlayerId == id)
-                .ToListAsync();
-
-            foreach (var rating in deletedRating)
-            {
-                _context.Ratings.Remove(rating);
-            }
-
-            _context.Players.Remove(player);
-            await _context.SaveChangesAsync();
-
-            return player;
+            return Ok(player);
         }
     }
 }

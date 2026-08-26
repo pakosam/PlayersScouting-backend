@@ -4,6 +4,7 @@ using Mono.TextTemplating;
 using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
+using PlayersScouting_backend.Services;
 
 namespace PlayersScouting_backend.Controllers
 {
@@ -11,53 +12,69 @@ namespace PlayersScouting_backend.Controllers
     [ApiController]
     public class StatsController : ControllerBase
     {
-        private readonly DataContext _context;
-        public StatsController(DataContext context)
+        private readonly IStatsService _statsService;
+        public StatsController(IStatsService statsService)
         {
-            _context = context;
+            _statsService = statsService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Stats>>> GetAllStats()
         {
-            var stats = await _context.Stats.ToListAsync();
+            var stats = await _statsService.GetAllStats();
+
+            return Ok(stats);
+
+            /*var stats = await _context.Stats.ToListAsync();
 
             if (stats == null)
             {
                 return NotFound();
             }
 
-            return Ok(stats);
+            return Ok(stats);*/
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Stats>> GetSingleStat(int id)
         {
-            var stat = await _context.Stats.FindAsync(id);
+            var stat = await _statsService.GetStat(id);
+
+            return Ok(stat);
+
+            /*var stat = await _context.Stats.FindAsync(id);
 
             if (stat == null)
             {
                 return NotFound();
             }
 
-            return stat;
+            return stat;*/
         }
 
         [HttpGet("player/{playerId:int}")]
         public async Task<ActionResult<List<Stats>>> GetStatsByPlayerId(int playerId)
         {
-            var stats = await _context.Stats
+            var stats = await _statsService.GetStatsByPlayerId(playerId);
+
+            return Ok(stats);
+
+            /*var stats = await _context.Stats
                 .Where(s => s.PlayerId == playerId)
                 .ToListAsync();
 
-            return stats;
+            return stats;*/
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Stats>> AddStat(CreateStatDto stat)
+        public async Task<ActionResult<Stats>> AddStat(CreateStatDto createdStat)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == stat.FullName);
+            var stat = await _statsService.CreateStats(createdStat);
+
+            return Ok(stat);
+
+            /*var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == stat.FullName);
 
             if (player == null)
             {
@@ -77,13 +94,17 @@ namespace PlayersScouting_backend.Controllers
             _context.Stats.Add(createStat);
             await _context.SaveChangesAsync();
 
-            return createStat;
+            return createStat;*/
         }
 
         [HttpPut]
         public async Task<ActionResult<Stats>> UpdateStat(UpdateStatDto updatedStat)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedStat.FullName);
+            var stat = await _statsService.UpdateStats(updatedStat);
+
+            return Ok(stat);
+
+            /*var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedStat.FullName);
 
             if (player == null)
             {
@@ -106,13 +127,17 @@ namespace PlayersScouting_backend.Controllers
 
             await _context.SaveChangesAsync();
 
-            return dbStat;
+            return dbStat;*/
         }
 
         [HttpDelete("{statId}")]
         public async Task<ActionResult<Stats>> DeleteStat(int statId)
         {
-            var stat = await _context.Stats.FindAsync(statId);
+            var stat = await _statsService.DeleteStat(statId);
+
+            return Ok(stat);
+
+            /*var stat = await _context.Stats.FindAsync(statId);
 
             if (stat == null)
                 return NotFound();
@@ -120,7 +145,7 @@ namespace PlayersScouting_backend.Controllers
             _context.Stats.Remove(stat);
             await _context.SaveChangesAsync();
 
-            return stat;
+            return stat;*/
         }
     }
 }

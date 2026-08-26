@@ -4,6 +4,7 @@ using Mono.TextTemplating;
 using PlayersScouting_backend.DTOs;
 using PlayersScouting_backend.Entities;
 using PlayersScouting_backend.Persistence;
+using PlayersScouting_backend.Services;
 
 namespace PlayersScouting_backend.Controllers
 {
@@ -11,57 +12,68 @@ namespace PlayersScouting_backend.Controllers
     [ApiController]
     public class RatingsController : ControllerBase
     {
-        private readonly DataContext _context;
-        public RatingsController(DataContext context)
+        private readonly IRatingsService _ratingsService;
+        public RatingsController(IRatingsService ratingsService)
         {
-            _context = context;
+            _ratingsService = ratingsService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Ratings>>> GetAllRatings()
         {
-            var ratings = await _context.Ratings.ToListAsync();
+            var ratings = await _ratingsService.GetAllRatings();
+
+            return Ok(ratings);
+
+            /*var ratings = await _context.Ratings.ToListAsync();
 
             if (ratings == null)
             {
                 return NotFound();
             }
 
-            return Ok(ratings);
+            return Ok(ratings);*/
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Ratings>> GetSingleRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
+            var rating = await _ratingsService.GetRating(id);
+
+            return Ok(rating);
+
+            /*var rating = await _context.Ratings.FindAsync(id);
 
             if (rating == null)
             {
                 return NotFound();
             }
 
-            return rating;
+            return rating;*/
         }
 
         [HttpGet("player/{playerId:int}")]
         public async Task<ActionResult<List<Ratings>>> GetRatingsByPlayerId(int playerId)
         {
-            var ratings = await _context.Ratings
+            var ratings = await _ratingsService.GetRatingByPlayerId(playerId);
+
+            return Ok(ratings);
+            
+            /*var ratings = await _context.Ratings
                 .Where(s => s.PlayerId == playerId)
                 .ToListAsync();
 
-            /*if (!ratings.Any())
-            {
-                return NotFound();
-            }*/
-
-            return ratings;
+            return ratings;*/
         }
 
         [HttpPost]
-        public async Task<ActionResult<Ratings>> AddRating(CreateRatingDto rating)
+        public async Task<ActionResult<Ratings>> AddRating(CreateRatingDto createdRatingDto)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == rating.FullName);
+            var rating = await _ratingsService.CreateRatings(createdRatingDto);
+
+            return Ok(rating);
+
+            /*var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == rating.FullName);
 
             if (player == null)
             {
@@ -99,13 +111,17 @@ namespace PlayersScouting_backend.Controllers
             _context.Ratings.Add(createRating);
             await _context.SaveChangesAsync();
 
-            return createRating;
+            return createRating;*/
         }
 
         [HttpPut]
         public async Task<ActionResult<Ratings>> UpdateRating(UpdateRatingDto updatedRating)
         {
-            var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedRating.FullName);
+            var rating = await _ratingsService.UpdateRatings(updatedRating);
+
+            return Ok(rating);
+
+            /*var player = await _context.Players.FirstOrDefaultAsync(p => (p.Name + " " + p.Surname) == updatedRating.FullName);
 
             if (player == null)
             {
@@ -139,31 +155,15 @@ namespace PlayersScouting_backend.Controllers
 
             await _context.SaveChangesAsync();
 
-            return dbRating;
+            return dbRating;*/
         }
 
         [HttpDelete]
         public async Task<ActionResult<Ratings>> DeleteRating(int id)
         {
+            var rating = await _ratingsService.DeleteRating(id);
 
-            var player = await _context.Players.FindAsync(id);
-
-            if (player == null)
-            {
-                return NotFound();
-            }
-
-            var rating = _context.Ratings.FirstOrDefault(r => r.PlayerId == player.Id);
-
-            if (rating == null)
-            {
-                return NotFound();
-            }
-
-            _context.Ratings.Remove(rating);
-            await _context.SaveChangesAsync();
-
-            return rating;
+            return Ok(rating);
         }
     }
 }

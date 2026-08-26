@@ -21,10 +21,9 @@
         public string Surname { get; set; }
         public DateOnly Birthdate { get; set; }
         public string Birthplace { get; set; }
-        public int Age { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string PlayerFullName { get; set; }
+        public List<string> PlayerFullNames { get; set; } = new();
     }
 
     public class UpdateScoutDto
@@ -34,9 +33,19 @@
         public string Surname { get; set; }
         public DateOnly Birthdate { get; set; }
         public string Birthplace { get; set; }
-        public int Age { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string PlayerFullName { get; set; }
+        public List<string> PlayerFullNames { get; set; } = new();
+    }
+
+    public class ScoutDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public DateOnly Birthdate { get; set; }
+        public string Birthplace { get; set; }
+        public string Email { get; set; }
+        public List<int> PlayersId { get; set; } = new();
     }
 }
